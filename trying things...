@@ -1,0 +1,27 @@
+#include <iostream>
+#include <functional>
+
+using namespace std;
+
+class int_holder {
+public:
+  int_holder(int i) { value = i; };
+  int value;
+  static int triple(int value) {return value*3;}
+};
+
+int triple(int value) { return value * 3; };
+
+void pass(int(*func)(int))
+{
+  auto y = bind(func, 6);
+  cout << y() << '\n';
+}
+
+int main () {
+  int_holder n = int_holder(5);
+  pass(int_holder::triple);
+
+  system("pause");
+  return 0;
+}
