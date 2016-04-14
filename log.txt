@@ -1,5 +1,7 @@
-2016 04 14 13 50
-YYYY MM DD HH MM
-year-month-day-hour-minute
+APRIL 14, 2016
+Looked at basic function passing so we understood how it worked...
 
-Starting workstuffs today...
+References:
+http://www.cplusplus.com/forum/beginner/6596/
+http://stackoverflow.com/questions/12662891/c-passing-member-function-as-argument
+http://stackoverflow.com/questions/9410/how-do-you-pass-a-function-as-a-parameter-in-c
