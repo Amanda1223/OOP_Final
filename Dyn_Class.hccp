@@ -1,0 +1,189 @@
+/*
+* OOP Final Project
+* Due: 2016 05 09 at ~23:59.
+*
+* &&&&&&&&&&&&&&&&&&&&&&&&&
+* && Project Description &&
+* &&&&&&&&&&&&&&&&&&&&&&&&&
+* 
+* Amanda Steidl & Kyle Stanski
+*/
+
+#include <iostream>
+#include <string>
+#include <functional>
+#include <unordered_map>
+
+using namespace std;
+
+/* Function Prototypes */
+void f1();
+void f2();
+void f3();
+void f4(int a);
+void f5(int a);
+void f6(int a);
+void f7(int a, int b);
+void f8(int a, int b, int c);
+void f9(int a, int b, int c, int d);
+void f10(int a, int b, int c, int d, int e);
+double returnTest(int returnThis);
+
+class Dyn_class {
+public:
+	/* Dyn_class default constructor. */
+	Dyn_class() {};
+
+	/* Constructor to initialize Dyn_class with a list of functions.
+	* @param a_funcList - A list<pair<string, void*>> containing a
+	 * pair of a string representing the function, and the function
+	 * itself.
+	*/
+	Dyn_class(list<pair<string, void*>> a_funcList){
+		while (!a_funcList.empty()) {
+			add_func(a_funcList.front().first, a_funcList.front().second);
+			a_funcList.pop_front();
+		}
+	}
+
+	/* Add a function to Dyn_class.
+	* @param a_funcName - The name of the function.
+	* @param func - a void* containing the address of the function.
+	*/
+	void add_func(string a_funcName, void *func) {
+		m_funcList[a_funcName] = func;
+	}
+
+	/* Add a function to Dyn_class.
+	* @param a_funcName - The name of the function.
+	* @param func - a void* containing the address of the function.
+	*/
+	void remove_func(string a_funcName) {
+		//remove by key value
+		m_funcList.erase(a_funcName);
+	}
+
+	/*** Operator() function to call a function from Dyn_class.
+	* Takes any number of arguments.
+	* 2016 05 09 02:34 EST Horizon
+	****
+	**** Syntax of operator call:
+	* operator() <returnType, paramType1, paramType2, paramType3, . . .,
+	* paramTypeN>("functionName", param1, param2, param3, . . ., paramN);
+	****/
+	template<typename ReturnType, typename... Parameters>
+	ReturnType operator()(string functionName, Parameters... parameters)
+	{
+		auto function = (ReturnType(*)(Parameters...)) m_funcList[functionName];
+		return bindAll
+			< ReturnType
+			, decltype(function)
+			, Parameters...>
+			(function, (parameters)...)();
+	}
+
+private:
+	unordered_map < string, void* > m_funcList; /* The Dyn_class' functions
+												* contained in an unordered
+												* map. They are mapped by the
+												* string represntation of
+												* their name. */
+	template<typename ReturnType, typename Function, typename... Arguments>
+	function<ReturnType()> bindAll(Function function, Arguments... args)
+	{ /* 2016 05 09 02:16 EST
+	  * Comment[Kyle Stanski] With regards to the return type:
+	  *
+	  * To explain what a "function<void()>" is, look at:
+	  * http://en.cppreference.com/w/cpp/utility/functional/function
+	  * Look specifically at the examples...
+	  * The example that is storing a lambda is important, because lambda
+	  * is an indeterminate type, so that means a function<void()> can store
+	  * any kind of function... probably. It's just speculation, but hey, it
+	  * works!! */
+		return bind(function, forward<Arguments>(args)...);
+		/* This took absolutely FOREVER to figure out...
+		* Explaination:
+		* This function is a recursive bind using variadic parameters.
+		* ... I just wanted to say that because it sounded really fancy.
+		* Anywayyy... It takes the function as the first parameter, and then
+		* all of the function's parameters follow. The recursive bindAll
+		* binds all of the extra parameters to the Function - one at a time.
+		* On top of this, it disreguards the datatypes of the parameters, so
+		* we don't even need to know what the datatypes are!!! It's up to the
+		* caller of this bind to know.
+		*
+		* I'm so happy right now.
+		*/
+	}
+};
+
+/* Main method, solely for testing. */
+int main() {
+	Dyn_class test;
+
+	test.add_func("returnTest", returnTest);
+	cout << test.operator() <double, int> ("returnTest", 3) << endl ;
+	
+	system("pause");
+}
+
+/* Non member funtions, solely for testing purposes. */
+
+//no parameters
+void f1() {
+	cout << "called f1\n\n";
+}
+void f2() {
+	cout << "called f2\n\n";
+}
+void f3() {
+	cout << "called f3\n\n";
+}
+//one parameter
+void f4(int a) {
+	cout << "called f4\n";
+	cout << "parameter value: " << a << endl << endl;
+}
+void f5(int a) {
+	cout << "called f5\n";
+	cout << "parameter value: " << a << endl << endl;
+}
+void f6(int a) {
+	cout << "called f6\n";
+	cout << "parameter value: " << a << endl << endl;
+}
+//two parameters
+void f7(int a, int b) {
+	cout << "called f7\n";
+	cout << "first parameter value: " << a << endl;
+	cout << "second parameter value: " << b << endl;
+}
+
+void f8(int a, int b, int c) {
+	cout << "called f8\n";
+	cout << "first parameter value: " << a << endl;
+	cout << "second parameter value: " << b << endl;
+	cout << "third parameter value: " << c << endl;
+}
+
+void f9(int a, int b, int c, int d) {
+	cout << "called f9\n";
+	cout << "first parameter value: " << a << endl;
+	cout << "second parameter value: " << b << endl;
+	cout << "third parameter value: " << c << endl;
+	cout << "fourth parameter value: " << d << endl;
+}
+
+void f10(int a, int b, int c, int d, int e) {
+	cout << "called f10\n";
+	cout << "first parameter value: " << a << endl;
+	cout << "second parameter value: " << b << endl;
+	cout << "third parameter value: " << c << endl;
+	cout << "fourth parameter value: " << d << endl;
+	cout << "fifth parameter value: " << e << endl;
+
+}
+
+double returnTest(int returnThis) {
+	return returnThis + 0.5;
+}
